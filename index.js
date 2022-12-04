@@ -19,8 +19,23 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
+async function run(){
+    try{
+        const allserviceCollection = client.db('argoslaptopgarage').collection('allservice');
+        app.get('/allservice', async(req, res) =>{
+            const query ={};
+            const options = await allserviceCollection.find(query).toArray();
+            res.send(options)
+        })
 
 
+    }
+    finally{
+
+    }
+
+}
+run().catch(console.log);
 
 
 
