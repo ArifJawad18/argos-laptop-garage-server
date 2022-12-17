@@ -1,10 +1,9 @@
 const express = require( 'express');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
 const { query } = require('express');
 require('dotenv').config()
 const port = process.env.PORT  || 5000;
-
 
 
 const app = express();
@@ -21,12 +20,25 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 
 async function run(){
   try{
-    const allserviceCollection = client.db('laptopPortal').collection('allservice')
+    const allserviceCollection = client.db('laptopPortal').collection('allservice');
+    const orderCollection = client.db('laptopPortal').collection('allservice')
     
     app.get('/allservice', async(req, res) => {
       const query = {};
       const options = await allserviceCollection.find(query).toArray();
       res.send(options);
+    });
+
+    app.get('/allservice/:id', async(req, res) =>{
+      const id = req.params.id;
+      const query = {_id: ObjectId(id)};
+      const allservice = await allserviceCollection.findOne(query);
+      res.send(allservice)
+    });
+    app.post('/orders', async(req, res) =>{
+      const order = req.body;
+      const result = await allserviceCollection.insertOne(order);
+      res.send(result);
     })
 
   }
