@@ -21,12 +21,13 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run(){
   try{
     const allserviceCollection = client.db('laptopPortal').collection('allservice');
-    const orderCollection = client.db('laptopPortal').collection('allservice')
+    const orderCollection = client.db('laptopPortal').collection('orders')
     
     app.get('/allservice', async(req, res) => {
       const query = {};
-      const options = await allserviceCollection.find(query).toArray();
-      res.send(options);
+      const cursor = allserviceCollection.find(query);
+      const allservice = await cursor.toArray();
+      res.send(allservice); 
     });
 
     app.get('/allservice/:id', async(req, res) =>{
@@ -35,11 +36,26 @@ async function run(){
       const allservice = await allserviceCollection.findOne(query);
       res.send(allservice)
     });
+
+    //orders api
+    app.get('/orders', async(req, res) =>{
+     let query = {};
+     if(req.query.email){
+      query = {
+        email:req.query.email
+      }
+     }
+      const cursor = orderCollection.find(query);
+      const orders = await cursor.toArray()
+      res.send(orders);
+    });
+
+
     app.post('/orders', async(req, res) =>{
       const order = req.body;
-      const result = await allserviceCollection.insertOne(order);
+      const result = await orderCollection.insertOne(order);
       res.send(result);
-    })
+    });
 
   }
   finally{
