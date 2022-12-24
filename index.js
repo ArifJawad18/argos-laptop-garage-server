@@ -60,10 +60,16 @@ async function run(){
       return res.send({accessToken:token})
     }
     res.status(403).send({accessToken: ''})
-     
-  
-    
     })
+
+    app.get('/orders/:id', async (req, res) =>{
+      const id = req.params.id;
+      const query = { _id: ObjectId(id)};
+      const orders = await orderCollection.findOne(query);
+      res.send(orders);
+    })
+
+  
 
     app.patch('/orders/:id', async(req, res) =>{
       const id = req.params.id;
@@ -77,9 +83,24 @@ async function run(){
       const result = await orderCollection.updateOne(query, updateDoc);
       res.send(result);
 
-    })
+    });
 
-  
+      //temporary price //
+
+      // app.get('/addPrice', async (req, res) => {
+      //   const filter = {}
+      //   const options = { upsert: true }
+      //   const updateDoc ={
+      //     $set:{
+      //       price : 100
+      //     }
+      //   }
+      //   const result = await allserviceCollection.updateMany(filter, updateDoc, options)
+      //   res.send(result);
+
+      // })
+
+
 
 
     app.post('/orders', async(req, res) =>{
