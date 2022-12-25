@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const { query, response } = require('express');
 require('dotenv').config()
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const port = process.env.PORT  || 5000;
 
 
@@ -50,6 +51,43 @@ async function run(){
       const orders = await cursor.toArray()
       res.send(orders);
     });
+
+    app.post('/create-payment-intent', async (req, res) => {
+      const orders = req.body;
+      const price = orders.price;
+      const amount = price * 100;
+
+      const paymentIntent = await stripe.paymentIntents.create({
+        currency: 'usd',
+        amount: amount,
+        "payment_method_types": [
+          "card"
+        ]
+      });
+      res.send({
+        clientSecret: paymentIntent.client_secret,
+      });
+
+    });
+
+    app.post('/payments', async(req, res)=>{
+      const payment = req.body;
+      const result = await paymentsCollection.insertOne(payment);
+      const _id = payment.orderId
+      const filter = {_id: ObjectId(id)}
+      const updatedDoc = {
+      $set:{
+        paid: true,
+        transactionId: payment.transactionId
+        
+      }
+    }
+    const updatedResult = await orderCollection.updateOne(filter, updatedDoc)
+    res.send(result)
+      
+      res.send(result);
+    })
+
 
     app.get('/jwt', async(req, res) =>{
     const email = req.query.email;
