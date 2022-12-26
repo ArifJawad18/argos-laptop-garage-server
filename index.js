@@ -23,7 +23,8 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run(){
   try{
     const allserviceCollection = client.db('laptopPortal').collection('allservice');
-    const orderCollection = client.db('laptopPortal').collection('orders')
+    const orderCollection = client.db('laptopPortal').collection('orders');
+    const paymentsCollection = client.db('laptopPortal').collection('payments');
     
     app.get('/allservice', async(req, res) => {
       const query = {};
@@ -73,7 +74,7 @@ async function run(){
     app.post('/payments', async(req, res)=>{
       const payment = req.body;
       const result = await paymentsCollection.insertOne(payment);
-      const _id = payment.orderId
+      const id = payment.ordersId
       const filter = {_id: ObjectId(id)}
       const updatedDoc = {
       $set:{
@@ -84,8 +85,6 @@ async function run(){
     }
     const updatedResult = await orderCollection.updateOne(filter, updatedDoc)
     res.send(result)
-      
-      res.send(result);
     })
 
 
